@@ -1,0 +1,11 @@
+{
+    "id": "recraft",
+    "name": "ReCraft",
+    "version": "1.0.0",
+    "description": "Thème moderne violet/noir/blanc pour Azuriom avec page d'accueil complète, status serveur, widget Discord et configuration avancée.",
+    "url": "",
+    "authors": [
+        "Vyrriox"
+    ],
+    "azuriom_api": "1.2.0"
+}

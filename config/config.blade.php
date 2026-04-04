@@ -155,6 +155,44 @@
                         <input type="number" class="form-control" name="global_page_width" value="{{ old('global_page_width', theme_config('global_page_width')) ?: '1200' }}" min="900" max="1600" step="50">
                     </div>
                 </div>
+
+                <h5 class="mt-2 mb-2"><i class="bi bi-fonts"></i> Polices par section</h5>
+                <small class="text-muted d-block mb-2">Laissez sur « Police globale » pour utiliser la police principale partout. Choisissez une police specifique pour personnaliser chaque zone.</small>
+                @php
+                    $fontOptions = [
+                        '' => 'Police globale (defaut)',
+                        'inter' => 'Inter',
+                        'poppins' => 'Poppins',
+                        'roboto' => 'Roboto',
+                        'montserrat' => 'Montserrat',
+                        'nunito' => 'Nunito',
+                        'raleway' => 'Raleway',
+                        'ubuntu' => 'Ubuntu',
+                        'lato' => 'Lato',
+                        'open-sans' => 'Open Sans',
+                        'outfit' => 'Outfit',
+                    ];
+                    $sectionFonts = [
+                        ['key' => 'font_navbar', 'label' => 'Navbar'],
+                        ['key' => 'font_hero_title', 'label' => 'Hero — Titre'],
+                        ['key' => 'font_hero_subtitle', 'label' => 'Hero — Sous-titre'],
+                        ['key' => 'font_headings', 'label' => 'Titres de sections'],
+                        ['key' => 'font_footer', 'label' => 'Footer'],
+                        ['key' => 'font_stats', 'label' => 'Stats (chiffres)'],
+                    ];
+                @endphp
+                <div class="row">
+                    @foreach($sectionFonts as $sf)
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">{{ $sf['label'] }}</label>
+                            <select class="form-select form-select-sm" name="{{ $sf['key'] }}">
+                                @foreach($fontOptions as $val => $lbl)
+                                    <option value="{{ $val }}" {{ theme_config($sf['key']) === $val ? 'selected' : '' }}>{{ $lbl }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endforeach
+                </div>
                 <div class="row">
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Animations</label>
@@ -833,38 +871,74 @@
                 </div>
 
                 <div class="row mb-3">
-                    <div class="col-md-9">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" name="footer_description" rows="2">{{ old('footer_description', theme_config('footer_description')) }}</textarea>
-                    </div>
                     <div class="col-md-3">
-                        <label class="form-label">Logo dans le footer</label>
+                        <label class="form-label">Style du footer</label>
+                        <select class="form-select" name="footer_style">
+                            @php $fStyle = theme_config('footer_style') ?: 'default'; @endphp
+                            <option value="default" {{ $fStyle === 'default' ? 'selected' : '' }}>Defaut</option>
+                            <option value="glass" {{ $fStyle === 'glass' ? 'selected' : '' }}>Glass</option>
+                            <option value="minimal" {{ $fStyle === 'minimal' ? 'selected' : '' }}>Minimal</option>
+                            <option value="gradient" {{ $fStyle === 'gradient' ? 'selected' : '' }}>Gradient</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Couleur de fond</label>
+                        <input type="color" class="form-control form-control-color" name="footer_bg_color" value="{{ theme_config('footer_bg_color') ?: '#0a0a1a' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Nb colonnes</label>
+                        <select class="form-select" name="footer_columns">
+                            @php $fCols = theme_config('footer_columns') ?: '3'; @endphp
+                            <option value="2" {{ $fCols === '2' ? 'selected' : '' }}>2</option>
+                            <option value="3" {{ $fCols === '3' ? 'selected' : '' }}>3</option>
+                            <option value="4" {{ $fCols === '4' ? 'selected' : '' }}>4</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Logo</label>
                         <select class="form-select" name="footer_show_logo">
                             <option value="1" {{ theme_config('footer_show_logo') !== '0' ? 'selected' : '' }}>Oui</option>
                             <option value="0" {{ theme_config('footer_show_logo') === '0' ? 'selected' : '' }}>Non</option>
                         </select>
                     </div>
-                </div>
-                <div class="row mb-3">
                     <div class="col-md-3">
-                        <label class="form-label">Liens s'ouvrent dans un nouvel onglet</label>
+                        <label class="form-label">Liens nouvel onglet</label>
                         <select class="form-select" name="footer_links_new_tab">
                             <option value="0" {{ theme_config('footer_links_new_tab') !== '1' ? 'selected' : '' }}>Non</option>
-                            <option value="1" {{ theme_config('footer_links_new_tab') === '1' ? 'selected' : '' }}>Oui (nouvel onglet)</option>
+                            <option value="1" {{ theme_config('footer_links_new_tab') === '1' ? 'selected' : '' }}>Oui</option>
                         </select>
                     </div>
                 </div>
 
-                {{-- Footer columns side by side --}}
+                <div class="row mb-3">
+                    <div class="col-md-9">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="footer_description" rows="2">{{ old('footer_description', theme_config('footer_description')) }}</textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Copyright</label>
+                        <input type="text" class="form-control" name="footer_copyright" value="{{ old('footer_copyright', theme_config('footer_copyright')) }}" placeholder="Laissez vide = defaut">
+                    </div>
+                </div>
+
+                {{-- Footer columns --}}
                 <div class="row">
-                    <div class="col-md-4 mb-3">
+                    {{-- Colonne 1 --}}
+                    <div class="col-md-3 mb-3">
                         <div class="footer-col-config">
                             <label class="form-label fw-bold"><i class="bi bi-1-circle"></i> Colonne 1</label>
                             <input type="text" class="form-control mb-2" name="footer_col1_title" value="{{ old('footer_col1_title', theme_config('footer_col1_title')) }}">
-                            <small class="text-muted d-block">Auto : Accueil + liens navbar.</small>
+                            <label class="form-label">Contenu</label>
+                            <select class="form-select form-select-sm" name="footer_col1_content">
+                                @php $col1c = theme_config('footer_col1_content') ?: 'auto'; @endphp
+                                <option value="auto" {{ $col1c === 'auto' ? 'selected' : '' }}>Auto (navbar)</option>
+                                <option value="description" {{ $col1c === 'description' ? 'selected' : '' }}>Description + logo</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3">
+
+                    {{-- Colonne 2 --}}
+                    <div class="col-md-3 mb-3">
                         <div class="footer-col-config">
                             <label class="form-label fw-bold"><i class="bi bi-2-circle"></i> Colonne 2</label>
                             <input type="text" class="form-control mb-2" name="footer_col2_title" value="{{ old('footer_col2_title', theme_config('footer_col2_title')) }}">
@@ -880,14 +954,30 @@
                             <button type="button" id="addLinkButton" class="btn btn-sm btn-success"><i class="bi bi-plus-lg"></i> Ajouter</button>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3">
+
+                    {{-- Colonne 3 --}}
+                    <div class="col-md-3 mb-3">
                         <div class="footer-col-config">
                             <label class="form-label fw-bold"><i class="bi bi-3-circle"></i> Colonne 3</label>
                             <input type="text" class="form-control mb-2" name="footer_col3_title" value="{{ old('footer_col3_title', theme_config('footer_col3_title')) }}">
-                            @for($i = 1; $i <= 3; $i++)
+                            @for($i = 1; $i <= 6; $i++)
                                 <div class="input-group mb-2">
                                     <input type="text" class="form-control" name="footer_legal_link{{ $i }}_text" value="{{ old("footer_legal_link{$i}_text", theme_config("footer_legal_link{$i}_text")) }}" placeholder="Lien {{ $i }}">
                                     <input type="text" class="form-control" name="footer_legal_link{{ $i }}_url" value="{{ old("footer_legal_link{$i}_url", theme_config("footer_legal_link{$i}_url")) }}" placeholder="URL">
+                                </div>
+                            @endfor
+                        </div>
+                    </div>
+
+                    {{-- Colonne 4 --}}
+                    <div class="col-md-3 mb-3">
+                        <div class="footer-col-config">
+                            <label class="form-label fw-bold"><i class="bi bi-4-circle"></i> Colonne 4 <small class="text-muted">(si 4 colonnes)</small></label>
+                            <input type="text" class="form-control mb-2" name="footer_col4_title" value="{{ old('footer_col4_title', theme_config('footer_col4_title')) }}">
+                            @for($i = 1; $i <= 6; $i++)
+                                <div class="input-group mb-2">
+                                    <input type="text" class="form-control" name="footer_col4_link{{ $i }}_text" value="{{ old("footer_col4_link{$i}_text", theme_config("footer_col4_link{$i}_text")) }}" placeholder="Lien {{ $i }}">
+                                    <input type="text" class="form-control" name="footer_col4_link{{ $i }}_url" value="{{ old("footer_col4_link{$i}_url", theme_config("footer_col4_link{$i}_url")) }}" placeholder="URL">
                                 </div>
                             @endfor
                         </div>
@@ -905,6 +995,12 @@
                             ['name' => 'footer_social_tiktok', 'icon' => 'tiktok', 'label' => 'TikTok', 'ph' => 'https://tiktok.com/...'],
                             ['name' => 'footer_social_twitch', 'icon' => 'twitch', 'label' => 'Twitch', 'ph' => 'https://twitch.tv/...'],
                             ['name' => 'footer_social_github', 'icon' => 'github', 'label' => 'GitHub', 'ph' => 'https://github.com/...'],
+                            ['name' => 'footer_social_facebook', 'icon' => 'facebook', 'label' => 'Facebook', 'ph' => 'https://facebook.com/...'],
+                            ['name' => 'footer_social_telegram', 'icon' => 'telegram', 'label' => 'Telegram', 'ph' => 'https://t.me/...'],
+                            ['name' => 'footer_social_linkedin', 'icon' => 'linkedin', 'label' => 'LinkedIn', 'ph' => 'https://linkedin.com/...'],
+                            ['name' => 'footer_social_snapchat', 'icon' => 'snapchat', 'label' => 'Snapchat', 'ph' => 'https://snapchat.com/...'],
+                            ['name' => 'footer_social_steam', 'icon' => 'steam', 'label' => 'Steam', 'ph' => 'https://steamcommunity.com/...'],
+                            ['name' => 'footer_social_reddit', 'icon' => 'reddit', 'label' => 'Reddit', 'ph' => 'https://reddit.com/r/...'],
                         ];
                     @endphp
                     @foreach($socials as $s)
@@ -913,10 +1009,12 @@
                             <input type="text" class="form-control" name="{{ $s['name'] }}" value="{{ old($s['name'], theme_config($s['name'])) }}" placeholder="{{ $s['ph'] }}">
                         </div>
                     @endforeach
-                    <div class="col-md-3 mb-3">
-                        <label class="form-label">Copyright</label>
-                        <input type="text" class="form-control" name="footer_copyright" value="{{ old('footer_copyright', theme_config('footer_copyright')) }}" placeholder="Laissez vide = defaut">
-                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">HTML personnalise (footer)</label>
+                    <textarea class="form-control" name="footer_custom_html" rows="3" placeholder="Code HTML libre affiche au-dessus du copyright">{{ old('footer_custom_html', theme_config('footer_custom_html')) }}</textarea>
+                    <small class="text-muted">HTML affiche avant la ligne de copyright. Vous pouvez y mettre du texte, des badges, etc.</small>
                 </div>
 
                 <hr>

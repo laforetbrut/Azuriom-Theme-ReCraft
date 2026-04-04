@@ -59,7 +59,25 @@
         ];
         $mainFont = ($fontFamily[$selectedFont] ?? "'Inter'") . ", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
     @endphp
-    <link href="https://fonts.googleapis.com/css2?family={{ $googleFont }}&display=swap" rel="stylesheet">
+    @php
+        // Collect all unique fonts needed (global + per-section overrides)
+        $sectionFontKeys = ['font_navbar', 'font_hero_title', 'font_hero_subtitle', 'font_headings', 'font_footer', 'font_stats'];
+        $fontsToLoad = [$googleFont]; // always load the main font
+        $sectionFontFamilies = [];
+        foreach ($sectionFontKeys as $sfKey) {
+            $sfVal = theme_config($sfKey);
+            if ($sfVal && isset($fontMap[$sfVal]) && $sfVal !== $selectedFont) {
+                $gf = $fontMap[$sfVal];
+                if (!in_array($gf, $fontsToLoad)) {
+                    $fontsToLoad[] = $gf;
+                }
+            }
+            $sectionFontFamilies[$sfKey] = ($sfVal && isset($fontFamily[$sfVal]))
+                ? $fontFamily[$sfVal] . ", -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif"
+                : null;
+        }
+    @endphp
+    <link href="https://fonts.googleapis.com/css2?{{ collect($fontsToLoad)->map(fn($f) => 'family=' . $f)->join('&') }}&display=swap" rel="stylesheet">
 
     {{-- Azuriom core styles --}}
     <link href="{{ asset('vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
@@ -128,6 +146,12 @@
             --radius-md: {{ $radii[1] }};
             --radius-lg: {{ $radii[2] }};
             --transition: all {{ $animSpeed }} ease;
+            @if($sectionFontFamilies['font_navbar']) --font-navbar: {{ $sectionFontFamilies['font_navbar'] }}; @endif
+            @if($sectionFontFamilies['font_hero_title']) --font-hero-title: {{ $sectionFontFamilies['font_hero_title'] }}; @endif
+            @if($sectionFontFamilies['font_hero_subtitle']) --font-hero-subtitle: {{ $sectionFontFamilies['font_hero_subtitle'] }}; @endif
+            @if($sectionFontFamilies['font_headings']) --font-headings: {{ $sectionFontFamilies['font_headings'] }}; @endif
+            @if($sectionFontFamilies['font_footer']) --font-footer: {{ $sectionFontFamilies['font_footer'] }}; @endif
+            @if($sectionFontFamilies['font_stats']) --font-stats: {{ $sectionFontFamilies['font_stats'] }}; @endif
         }
         .container { max-width: {{ $pageWidth }}px; }
 
